@@ -2,20 +2,63 @@
 <html lang="zh">
 
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>马赛克图片转换器</title>
-  <script type="module" crossorigin src="/assets/index.0c6f17cb.js"></script>
-  <link rel="stylesheet" href="/assets/index.d5a34e39.css">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>马赛克图片转换器</title>
+  <script type="module" crossorigin src="/assets/index.3bb5b366.js"></script>
+  <link rel="stylesheet" href="/assets/index.1114391e.css">
 </head>
 
 <body>
-  <div id="app">
-    <canvas id="canvas" width="200" height="200"></canvas>
-    <canvas id="offscreen" width="20" height="20"></canvas>
-    <input type="file" id="file" accept="image/*">
-  </div>
-  
+    <div id="initial">
+        <p>点击这里选择图片开始</p>
+    </div>
+    <div id="app" style="display: none">
+        <div class="content">
+            <div class="card-image">
+                <h2>原图</h2>
+                <img id="image" src="" alt="">
+                <div class="tip">
+                    点击更换图片
+                </div>
+            </div>
+            <div class="card-image" style="display: none">
+                <img id="mosaic-image" src="" alt="">
+            </div>
+            <div class="card-canvas">
+                <h2>马赛克图</h2>
+                <canvas id="canvas" width="200" height="200"></canvas>
+            </div>
+            <div class="card-shadow">
+                <h2>马赛克 box-shadow</h2>
+                <div id="shadow-image"></div>
+            </div>
+        </div>
+        <div class="sidebar">
+            <div class="item">
+                <label>精度</label><input type="range" id="precision" min="2" max="100">
+            </div>
+            <div class="item">
+                <label>shadow 间隙</label><input type="range" id="shadow-gap" min="0" max="10">
+            </div>
+            <div class="item">
+                <label>shadow 圆角</label><input type="range" id="shadow-radius" min="0" max="50">
+            </div>
+            <div class="item">
+                <label>去除 shadow 中的透明块</label><input type="checkbox" id="drop-transparent">
+            </div>
+            <div class="item">
+                <label>去除 shadow 中的白色</label><input type="checkbox" id="drop-white">
+            </div>
+            <div class="item">
+                <label>去除 shadow 中的 alpha 通道</label><input type="checkbox" id="drop-alpha">
+            </div>
+            <button id="export">复制 box-shadow 样式</button>
+        </div>
+    </div>
+    <input type="file" id="file" accept="image/*" hidden>
+    <canvas id="offscreen" width="20" height="20" hidden></canvas>
+    
 </body>
 
 </html>
