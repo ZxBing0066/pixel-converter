@@ -1,8 +1,12 @@
 lockfileVersion: 5.3
 
 specifiers:
+  copy-to-clipboard: ^3.3.2
   typescript: ^4.6.4
   vite: ^3.1.0
+
+dependencies:
+  copy-to-clipboard: 3.3.2
 
 devDependencies:
   typescript: 4.8.3
@@ -18,6 +22,12 @@ packages:
     requiresBuild: true
     dev: true
     optional: true
+
+  /copy-to-clipboard/3.3.2:
+    resolution: {integrity: sha512-Vme1Z6RUDzrb6xAI7EZlVZ5uvOk2F//GaxKUxajDqm9LhOVM1inxNAD2vy+UZDYsd0uyA9s7b3/FVZPSxqrCfg==}
+    dependencies:
+      toggle-selection: 1.0.6
+    dev: false
 
   /esbuild-android-64/0.15.7:
     resolution: {integrity: sha512-p7rCvdsldhxQr3YHxptf1Jcd86dlhvc3EQmQJaZzzuAxefO9PvcI0GLOa5nCWem1AJ8iMRu9w0r5TG8pHmbi9w==}
@@ -302,6 +312,10 @@ packages:
     resolution: {integrity: sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==}
     engines: {node: '>= 0.4'}
     dev: true
+
+  /toggle-selection/1.0.6:
+    resolution: {integrity: sha512-BiZS+C1OS8g/q2RRbJmy59xpyghNBqrr6k5L/uKBGRsTfxmu3ffiRnd8mlGPUVayg8pvfi5urfnu8TU7DVOkLQ==}
+    dev: false
 
   /typescript/4.8.3:
     resolution: {integrity: sha512-goMHfm00nWPa8UvR/CPSvykqf6dVV8x/dp0c5mFTMTIu0u0FlGWRioyy7Nn0PGAdHxpJZnuO/ut+PpQ8UiHAig==}
