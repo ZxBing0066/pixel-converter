@@ -58,10 +58,8 @@ button:focus-visible {
 
 [class|='card'] {
     width: 50vw;
-    min-height: 25vw;
     margin-bottom: 1em;
     display: flex;
-    justify-content: center;
     align-items: center;
     flex-direction: column;
     position: relative;
@@ -80,9 +78,6 @@ button:focus-visible {
 
 #image {
     max-width: 100%;
-}
-.card-shadow {
-    display: block;
 }
 .card-shadow h2 {
     text-align: center;

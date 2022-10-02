@@ -21,8 +21,8 @@ const ctx = canvas.getContext('2d')!;
 const offscreenCtx = offscreenCanvas.getContext('2d')!;
 
 let file: File;
-const width = 640;
-const canvasWidth = 640;
+// const width = 640;
+let canvasWidth = 640;
 // 精度
 let precision: number = 50;
 let shadowGap: number = 0;
@@ -130,7 +130,7 @@ const doMosaic = async () => {
     const ratio = imageDOM.naturalHeight / imageDOM.naturalWidth;
     offscreenCanvas.width = precision;
     offscreenCanvas.height = precision * ratio;
-    canvas.width = canvasWidth;
+    canvas.width = canvasWidth = Math.min(640, imageDOM.naturalHeight);
     canvas.height = canvasWidth * ratio;
     // console.log(img.width, img.height, img.clientWidth, img.offsetWidth, img.naturalWidth);
     // offscreenCtx.clearRect();
@@ -154,11 +154,12 @@ const doMosaic = async () => {
 
 const updateShadowImage = () => {
     const ratio = imageDOM.naturalHeight / imageDOM.naturalWidth;
-    const size = (width / precision) | 0;
+    const size = (canvasWidth / precision) | 0;
     shadowImageDOM.style.height = shadowImageDOM.style.width = Math.max(size - shadowGap, 1) + 'px';
     const boxShadow = outputBoxShadow(size);
     shadowImageDOM.style.boxShadow = boxShadow || 'none';
-    shadowImageDOM.parentElement!.style.height = width * ratio + 'px';
+    shadowImageDOM.parentElement!.style.height = size * precision * ratio + 'px';
+    shadowImageDOM.parentElement!.style.width = size * precision + 'px';
     shadowImageDOM.style.borderRadius = shadowRadius + '%';
 };
 
@@ -192,7 +193,7 @@ const outputBoxShadow = (size: number) => {
 };
 
 exportButtonDOM.addEventListener('click', () => {
-    const size = (width / precision) | 0;
+    const size = (canvasWidth / precision) | 0;
     const shadow = outputBoxShadow(size);
     copy(`
 .mosaic {
