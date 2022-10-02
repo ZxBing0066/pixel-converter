@@ -107,6 +107,9 @@ button:focus-visible {
 .sidebar .item {
     margin-bottom: 1em;
 }
+.sidebar hr {
+    width: 100%;
+}
 #mosaic-image {
     width: 100%;
     image-rendering: pixelated;
