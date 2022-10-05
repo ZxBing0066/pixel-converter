@@ -111,7 +111,7 @@ const readFile = (file: File): Promise<string> => {
     return controller;
 };
 
-const loadImage = (url: string, imageDOM?: HTMLImageElement) => {
+const loadImage = (url: string, imageDOM?: HTMLImageElement): Promise<HTMLImageElement> => {
     const [controller, success, error] = controllerFactory<HTMLImageElement>();
     const img = imageDOM ?? new Image();
     img.src = url;
@@ -129,26 +129,26 @@ const doMosaic = async () => {
     await loadImage(imgUrl, imageDOM);
     const ratio = imageDOM.naturalHeight / imageDOM.naturalWidth;
     offscreenCanvas.width = precision;
-    offscreenCanvas.height = precision * ratio;
+    offscreenCanvas.height = Math.round(precision * ratio);
     canvas.width = canvasWidth = Math.min(640, imageDOM.naturalHeight);
     canvas.height = canvasWidth * ratio;
     // console.log(img.width, img.height, img.clientWidth, img.offsetWidth, img.naturalWidth);
     // offscreenCtx.clearRect();
-    offscreenCtx.imageSmoothingEnabled =
-        (offscreenCtx as any).mozImageSmoothingEnabled =
-        (offscreenCtx as any).webkitImageSmoothingEnabled =
-        (offscreenCtx as any).msImageSmoothingEnabled =
-            false;
+    // offscreenCtx.imageSmoothingEnabled =
+    //     (offscreenCtx as any).mozImageSmoothingEnabled =
+    //     (offscreenCtx as any).webkitImageSmoothingEnabled =
+    //     (offscreenCtx as any).msImageSmoothingEnabled =
+    //         false;
     offscreenCtx.drawImage(imageDOM, 0, 0, offscreenCanvas.width, offscreenCanvas.height);
-    const smallImgUrl = offscreenCanvas.toDataURL();
-    const smallImg = await loadImage(smallImgUrl, mosaicImageDOM);
+    // const smallImgUrl = offscreenCanvas.toDataURL();
+    // const smallImg = await loadImage(smallImgUrl, mosaicImageDOM);
 
     ctx.imageSmoothingEnabled =
         (ctx as any).mozImageSmoothingEnabled =
         (ctx as any).webkitImageSmoothingEnabled =
         (ctx as any).msImageSmoothingEnabled =
             false;
-    ctx.drawImage(smallImg, 0, 0, canvasWidth, canvasWidth * ratio);
+    ctx.drawImage(offscreenCanvas, 0, 0, canvasWidth, canvasWidth * ratio);
     updateShadowImage();
 };
 
@@ -171,10 +171,10 @@ function rgbToHex(r: number, g: number, b: number) {
 const outputBoxShadow = (size: number) => {
     const shadowArr = [];
     const ratio = imageDOM.naturalHeight / imageDOM.naturalWidth;
-    const unit = canvasWidth / precision;
+    // const unit = canvasWidth / precision;
     for (let y = 0; y < precision * ratio; y++) {
         for (let x = 0; x < precision; x++) {
-            const p = ctx.getImageData(x * unit, y * unit, 1, 1).data;
+            const p = offscreenCtx.getImageData(x, y, 1, 1).data;
             if (dropTransparent && p[3] === 0) {
                 continue;
             }
