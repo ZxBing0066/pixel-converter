@@ -3,7 +3,7 @@ import copy from 'copy-to-clipboard';
 import './style.css';
 
 const imageDOM = document.getElementById('image') as HTMLImageElement;
-const mosaicImageDOM = document.getElementById('mosaic-image') as HTMLImageElement;
+// const mosaicImageDOM = document.getElementById('mosaic-image') as HTMLImageElement;
 const canvas = document.getElementById('canvas') as HTMLCanvasElement;
 const offscreenCanvas = document.getElementById('offscreen') as HTMLCanvasElement;
 const fileDOM = document.getElementById('file') as HTMLInputElement;
