@@ -3,7 +3,6 @@ import copy from 'copy-to-clipboard';
 import './style.css';
 
 const imageDOM = document.getElementById('image') as HTMLImageElement;
-// const mosaicImageDOM = document.getElementById('mosaic-image') as HTMLImageElement;
 const canvas = document.getElementById('canvas') as HTMLCanvasElement;
 const offscreenCanvas = document.getElementById('offscreen') as HTMLCanvasElement;
 const fileDOM = document.getElementById('file') as HTMLInputElement;
@@ -43,6 +42,9 @@ document.getElementById('initial')?.addEventListener('click', () => {
 document.querySelector('.card-image')?.addEventListener('click', () => {
     fileDOM.click();
 });
+document.querySelector('#import')?.addEventListener('click', () => {
+    fileDOM.click();
+});
 
 fileDOM.addEventListener('change', e => {
     const files = (e.target as HTMLInputElement).files;
@@ -50,13 +52,13 @@ fileDOM.addEventListener('change', e => {
     file = files[0];
     document.getElementById('initial')!.style.display = 'none';
     document.getElementById('app')!.style.display = 'flex';
-    doMosaic();
+    doPixel();
 });
 
 precisionDOM.addEventListener('change', e => {
     const target = e.target as HTMLInputElement;
     precision = +target.value;
-    doMosaic();
+    doPixel();
 });
 shadowGapDOM.addEventListener('change', e => {
     const target = e.target as HTMLInputElement;
@@ -124,7 +126,7 @@ const loadImage = (url: string, imageDOM?: HTMLImageElement): Promise<HTMLImageE
     return controller;
 };
 
-const doMosaic = async () => {
+const doPixel = async () => {
     const imgUrl = await readFile(file);
     await loadImage(imgUrl, imageDOM);
     const ratio = imageDOM.naturalHeight / imageDOM.naturalWidth;
@@ -132,16 +134,12 @@ const doMosaic = async () => {
     offscreenCanvas.height = Math.round(precision * ratio);
     canvas.width = canvasWidth = Math.min(640, imageDOM.naturalHeight);
     canvas.height = canvasWidth * ratio;
-    // console.log(img.width, img.height, img.clientWidth, img.offsetWidth, img.naturalWidth);
-    // offscreenCtx.clearRect();
-    // offscreenCtx.imageSmoothingEnabled =
-    //     (offscreenCtx as any).mozImageSmoothingEnabled =
-    //     (offscreenCtx as any).webkitImageSmoothingEnabled =
-    //     (offscreenCtx as any).msImageSmoothingEnabled =
-    //         false;
     offscreenCtx.drawImage(imageDOM, 0, 0, offscreenCanvas.width, offscreenCanvas.height);
-    // const smallImgUrl = offscreenCanvas.toDataURL();
-    // const smallImg = await loadImage(smallImgUrl, mosaicImageDOM);
+    document.querySelectorAll('.size-wrap').forEach(dom => {
+        const style = (dom as HTMLDivElement).style;
+        style.width = imageDOM.naturalWidth + 'px';
+        style.height = imageDOM.naturalHeight + 'px';
+    });
 
     ctx.imageSmoothingEnabled =
         (ctx as any).mozImageSmoothingEnabled =
@@ -171,7 +169,6 @@ function rgbToHex(r: number, g: number, b: number) {
 const outputBoxShadow = (size: number) => {
     const shadowArr = [];
     const ratio = imageDOM.naturalHeight / imageDOM.naturalWidth;
-    // const unit = canvasWidth / precision;
     for (let y = 0; y < precision * ratio; y++) {
         for (let x = 0; x < precision; x++) {
             const p = offscreenCtx.getImageData(x, y, 1, 1).data;
@@ -196,7 +193,7 @@ exportButtonDOM.addEventListener('click', () => {
     const size = (canvasWidth / precision) | 0;
     const shadow = outputBoxShadow(size);
     copy(`
-.mosaic {
+.pixel {
     box-shadow: ${shadow};
     width: ${size}px;
     height: ${size}px;

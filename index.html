@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>马赛克图片转换器</title>
+    <title>像素图片转换器</title>
 </head>
 
 <body>
@@ -12,31 +12,9 @@
         <p>点击这里选择图片开始</p>
     </div>
     <div id="app" style="display: none">
-        <div class="content">
-            <div class="card-image">
-                <h2>原图</h2>
-                <img id="image" src="" alt="">
-                <div class="tip">
-                    点击更换图片
-                </div>
-            </div>
-            <div class="card-image" style="display: none">
-                <img id="mosaic-image" src="" alt="">
-            </div>
-            <div class="card-canvas">
-                <h2>马赛克图</h2>
-                <canvas id="canvas" width="200" height="200"></canvas>
-            </div>
-            <div class="card-shadow">
-                <h2>马赛克 box-shadow</h2>
-                <div class="shadow-wrap">
-                    <div id="shadow-image"></div>
-                </div>
-            </div>
-        </div>
-        <div class="sidebar">
-            <h2>图片马赛克转换器</h2>
-            <div>给你的图片转成马赛克风格，✌️</div>
+        <div class="card-info">
+            <h2 class="title">图片像素转换器</h2>
+            <div class="remark">将你的图片转成像素风 ✌️</div>
             <hr>
             <div class="item">
                 <label>精度</label><input type="range" id="precision" min="2" max="100">
@@ -56,7 +34,33 @@
             <div class="item">
                 <label>去除 shadow 中的 alpha 通道</label><input type="checkbox" id="drop-alpha">
             </div>
-            <button id="export">复制 box-shadow 样式</button>
+            <div class="btn-group">
+                <button id="import">更换图片</button>
+                <button id="export">复制 box-shadow 样式</button>
+            </div>
+        </div>
+        <div class="card-shadow">
+            <h2>像素 box-shadow</h2>
+            <div class="size-wrap">
+                <div class="shadow-wrap">
+                    <div id="shadow-image"></div>
+                </div>
+            </div>
+        </div>
+        <div class="card-canvas">
+            <h2>像素图</h2>
+            <div class="size-wrap">
+                <canvas id="canvas" width="200" height="200"></canvas>
+            </div>
+        </div>
+        <div class="card-image">
+            <h2>原图</h2>
+            <div class="size-wrap">
+                <img id="image" src="" alt="">
+            </div>
+            <div class="tip">
+                点击更换图片
+            </div>
         </div>
     </div>
     <input type="file" id="file" accept="image/*" hidden>

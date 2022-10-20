@@ -3,20 +3,25 @@
     font-size: 16px;
     line-height: 24px;
     font-weight: 400;
-
     color: #213547;
     background-color: #ffffff;
-
     font-synthesis: none;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     -webkit-text-size-adjust: 100%;
+    height: 100%;
 }
 
 body {
+    height: 100%;
     margin: 0;
-    min-height: 100vh;
+    font-family: pixel-font;
+}
+
+@font-face {
+    font-family: pixel-font;
+    src: url(/font.TTF);
 }
 
 h1 {
@@ -50,19 +55,11 @@ button:focus-visible {
 
 #app {
     display: flex;
+    flex-wrap: wrap;
 }
 .content {
     display: flex;
     flex-direction: column;
-}
-
-[class|='card'] {
-    width: 50vw;
-    margin-bottom: 1em;
-    display: flex;
-    align-items: center;
-    flex-direction: column;
-    position: relative;
 }
 
 #shadow-image {
@@ -101,7 +98,6 @@ button:focus-visible {
     align-items: center;
     flex: 1;
     box-sizing: border-box;
-    padding: 3em;
 }
 
 .sidebar .item {
@@ -110,7 +106,7 @@ button:focus-visible {
 .sidebar hr {
     width: 100%;
 }
-#mosaic-image {
+#pixel-image {
     width: 100%;
     image-rendering: pixelated;
 }
@@ -126,14 +122,58 @@ button:focus-visible {
     align-items: center;
     background-color: transparent;
     color: white;
-    transition: background-color 1s 0.2s, opacity 0.5s;
-    z-index: -1;
+    backdrop-filter: saturate(50%) blur(8px);
+    transition: background 1s 0.2s, opacity 0.5s;
     opacity: 0;
 }
 
 [class|='card']:hover .tip {
     opacity: 1;
     background-color: rgba(0, 0, 0, 0.6);
-    backdrop-filter: saturate(50%) blur(8px);
     z-index: 0;
+}
+
+[class|='card'] {
+    width: 50vw;
+    margin-bottom: 1em;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    position: relative;
+    width: 50%;
+}
+
+@keyframes animatedGradient {
+    from {
+        background-size: 100%;
+    }
+
+    to {
+        background-size: 250%;
+    }
+}
+.card-info .title {
+    background: radial-gradient(circle, #80ffc1 0%, #ff6161 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    animation: animatedGradient 2s infinite ease;
+    animation-direction: alternate;
+    font-size: 2rem;
+    margin: 0;
+    line-height: 2.2em;
+}
+.card-info .remark {
+    color: #666;
+}
+
+.size-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    max-width: 100%;
+}
+
+.bth-group {
+    margin-top: 1em;
 }
