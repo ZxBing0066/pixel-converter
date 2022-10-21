@@ -61,7 +61,7 @@ document.querySelector('#import')?.addEventListener('click', () => {
     fileDOM.click();
 });
 
-const observer = new ResizeObserver(e => {
+const observer = new ResizeObserver(() => {
     doPixel();
 });
 observer.observe(imageDOM);
