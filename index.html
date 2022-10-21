@@ -5,8 +5,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>像素图片转换器</title>
-  <script type="module" crossorigin src="/assets/index.3e7b10a3.js"></script>
-  <link rel="stylesheet" href="/assets/index.25dbdec0.css">
+  <script type="module" crossorigin src="/assets/index.5bdd71a2.js"></script>
+  <link rel="stylesheet" href="/assets/index.3817428d.css">
 </head>
 
 <body>
@@ -16,25 +16,28 @@
     <div id="app" style="display: none">
         <div class="card-info">
             <h2 class="title">图片像素转换器</h2>
-            <div class="remark">将你的图片转成像素风 ✌️</div>
+            <div class="remark"><span class="symbol-wrap"><span class="symbol">✌️</span></span> 将你的图片转成像素风 <span
+                    class="symbol">✌️</span></div>
             <hr>
-            <div class="item">
-                <label>精度</label><input type="range" id="precision" min="2" max="100">
-            </div>
-            <div class="item">
-                <label>shadow 间隙</label><input type="range" id="shadow-gap" min="0" max="10">
-            </div>
-            <div class="item">
-                <label>shadow 圆角</label><input type="range" id="shadow-radius" min="0" max="50">
-            </div>
-            <div class="item">
-                <label>去除 shadow 中的透明块</label><input type="checkbox" id="drop-transparent">
-            </div>
-            <div class="item">
-                <label>去除 shadow 中的白色</label><input type="checkbox" id="drop-white">
-            </div>
-            <div class="item">
-                <label>去除 shadow 中的 alpha 通道</label><input type="checkbox" id="drop-alpha">
+            <div class="form">
+                <div class="item">
+                    <label>精度</label><input type="range" id="precision" min="2" max="100">
+                </div>
+                <div class="item">
+                    <label>shadow 间隙</label><input type="range" id="shadow-gap" min="0" max="10">
+                </div>
+                <div class="item">
+                    <label>shadow 圆角</label><input type="range" id="shadow-radius" min="0" max="50">
+                </div>
+                <div class="item">
+                    <label>去除 shadow 中的透明块</label><input type="checkbox" id="drop-transparent">
+                </div>
+                <div class="item">
+                    <label>去除 shadow 中的白色</label><input type="checkbox" id="drop-white">
+                </div>
+                <div class="item">
+                    <label>去除 shadow 中的 alpha 通道</label><input type="checkbox" id="drop-alpha">
+                </div>
             </div>
             <div class="btn-group">
                 <button id="import">更换图片</button>
@@ -57,7 +60,7 @@
         </div>
         <div class="card-image">
             <h2>原图</h2>
-            <div class="size-wrap">
+            <div class="image-wrap">
                 <img id="image" src="" alt="">
             </div>
             <div class="tip">
