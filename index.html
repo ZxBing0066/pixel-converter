@@ -5,8 +5,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>像素图片转换器</title>
-  <script type="module" crossorigin src="/assets/index.5bdd71a2.js"></script>
-  <link rel="stylesheet" href="/assets/index.3817428d.css">
+  <script type="module" crossorigin src="/assets/index.3c640be6.js"></script>
+  <link rel="stylesheet" href="/assets/index.8d1e42b0.css">
 </head>
 
 <body>
@@ -21,22 +21,34 @@
             <hr>
             <div class="form">
                 <div class="item">
-                    <label>精度</label><input type="range" id="precision" min="2" max="100">
+                    <label>精度<input type="range" id="precision" min="2" max="100"></label>
                 </div>
                 <div class="item">
-                    <label>shadow 间隙</label><input type="range" id="shadow-gap" min="0" max="10">
+                    <label>shadow 间隙<input type="range" id="shadow-gap" min="0" max="10"></label>
                 </div>
                 <div class="item">
-                    <label>shadow 圆角</label><input type="range" id="shadow-radius" min="0" max="50">
+                    <label>shadow 圆角<input type="range" id="shadow-radius" min="0" max="50"></label>
                 </div>
                 <div class="item">
-                    <label>去除 shadow 中的透明块</label><input type="checkbox" id="drop-transparent">
+                    <label>去除 shadow 中的透明块<input type="checkbox" id="drop-transparent"></label>
                 </div>
                 <div class="item">
-                    <label>去除 shadow 中的白色</label><input type="checkbox" id="drop-white">
+                    <label>去除 shadow 中的白色<input type="checkbox" id="drop-white"></label>
                 </div>
                 <div class="item">
-                    <label>去除 shadow 中的 alpha 通道</label><input type="checkbox" id="drop-alpha">
+                    <label>去除 shadow 中的 alpha 通道<input type="checkbox" id="drop-alpha"></label>
+                </div>
+                <div class="item">
+                    <label>随机 shadow 中的色块顺序<input type="checkbox" id="random-shadow"></label>
+                </div>
+                <div class="item">
+                    <label>使用 text-shadow<input type="checkbox" id="text-shadow"></label>
+                </div>
+                <div class="item">
+                    <label>自定义 text-shadow 文字<input type="text" id="shadow-text"></label>
+                </div>
+                <div class="item">
+                    <label>text-shadow 文字比例<input type="range" id="shadow-text-size" min="1" max="31"></label>
                 </div>
             </div>
             <div class="btn-group">
@@ -68,6 +80,8 @@
             </div>
         </div>
     </div>
+    <style id="text-shadow-style">
+    </style>
     <input type="file" id="file" accept="image/*" hidden>
     <canvas id="offscreen" width="20" height="20" hidden></canvas>
     
