@@ -46,6 +46,12 @@ document.querySelector('#import')?.addEventListener('click', () => {
     fileDOM.click();
 });
 
+const observer = new ResizeObserver(e => {
+    console.log(e);
+    doPixel();
+});
+observer.observe(imageDOM);
+
 fileDOM.addEventListener('change', e => {
     const files = (e.target as HTMLInputElement).files;
     if (!files?.length) return;
@@ -132,13 +138,15 @@ const doPixel = async () => {
     const ratio = imageDOM.naturalHeight / imageDOM.naturalWidth;
     offscreenCanvas.width = precision;
     offscreenCanvas.height = Math.round(precision * ratio);
-    canvas.width = canvasWidth = Math.min(640, imageDOM.naturalHeight);
+    console.log(imageDOM.clientHeight);
+    
+    canvas.width = canvasWidth = Math.min(640, imageDOM.naturalWidth, imageDOM.clientWidth);
     canvas.height = canvasWidth * ratio;
     offscreenCtx.drawImage(imageDOM, 0, 0, offscreenCanvas.width, offscreenCanvas.height);
     document.querySelectorAll('.size-wrap').forEach(dom => {
         const style = (dom as HTMLDivElement).style;
-        style.width = imageDOM.naturalWidth + 'px';
-        style.height = imageDOM.naturalHeight + 'px';
+        style.width = canvasWidth + 'px';
+        style.height = canvasWidth * ratio + 'px';
     });
 
     ctx.imageSmoothingEnabled =

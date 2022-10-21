@@ -1,3 +1,8 @@
+@font-face {
+    font-family: pixel-font;
+    src: url(/font.TTF);
+}
+
 :root {
     font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
     font-size: 16px;
@@ -19,19 +24,9 @@ body {
     font-family: pixel-font;
 }
 
-@font-face {
-    font-family: pixel-font;
-    src: url(/font.TTF);
-}
-
 h1 {
     font-size: 3.2em;
     line-height: 1.1;
-}
-
-#app {
-    margin: 0 auto;
-    padding: 2rem;
 }
 
 button {
@@ -56,10 +51,7 @@ button:focus-visible {
 #app {
     display: flex;
     flex-wrap: wrap;
-}
-.content {
-    display: flex;
-    flex-direction: column;
+    margin: 0 auto;
 }
 
 #shadow-image {
@@ -70,16 +62,11 @@ button:focus-visible {
 #image,
 #canvas {
     display: block;
-    margin: 0 auto 1em;
 }
 
 #image {
     max-width: 100%;
 }
-.card-shadow h2 {
-    text-align: center;
-}
-
 #initial {
     position: fixed;
     top: 0;
@@ -92,20 +79,6 @@ button:focus-visible {
     background-color: #fff;
 }
 
-.sidebar {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    flex: 1;
-    box-sizing: border-box;
-}
-
-.sidebar .item {
-    margin-bottom: 1em;
-}
-.sidebar hr {
-    width: 100%;
-}
 #pixel-image {
     width: 100%;
     image-rendering: pixelated;
@@ -141,24 +114,35 @@ button:focus-visible {
     flex-direction: column;
     position: relative;
     width: 50%;
+    padding: 1em;
+    box-sizing: border-box;
 }
 
-@keyframes animatedGradient {
+@keyframes bg-move {
     from {
         background-size: 100%;
     }
-
     to {
-        background-size: 250%;
+        background-size: 350%;
     }
 }
+
+@keyframes bg-gradient {
+    from {
+        background-image: radial-gradient(circle, #80ffc1 0%, #ff6161 100%);
+    }
+    to {
+        background-image: radial-gradient(circle, #e8e551 0%, #8a4fc5 100%);
+    }
+}
+
 .card-info .title {
     background: radial-gradient(circle, #80ffc1 0%, #ff6161 100%);
     background-clip: text;
     -webkit-background-clip: text;
     color: transparent;
-    animation: animatedGradient 2s infinite ease;
-    animation-direction: alternate;
+    animation: bg-move 2s infinite ease, bg-gradient 4s infinite linear;
+    animation-direction: alternate, alternate;
     font-size: 2rem;
     margin: 0;
     line-height: 2.2em;
@@ -167,13 +151,35 @@ button:focus-visible {
     color: #666;
 }
 
-.size-wrap {
+.size-wrap,
+.image-wrap {
     display: flex;
     align-items: center;
     justify-content: center;
     max-width: 100%;
 }
 
-.bth-group {
-    margin-top: 1em;
+.form {
+    padding: 1em 0;
+}
+
+@keyframes shake {
+    0% {
+    }
+    50% {
+        transform: rotate(30deg);
+    }
+    100% {
+        transform: rotate(-30deg);
+    }
+}
+
+.remark .symbol {
+    animation: shake 1s cubic-bezier(1, -0.63, 0.2, 1.6) alternate infinite;
+    transform-origin: bottom;
+    display: inline-block;
+}
+.remark .symbol-wrap {
+    transform: rotateY(0.5turn);
+    display: inline-block;
 }
