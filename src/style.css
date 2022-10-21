@@ -57,6 +57,8 @@ button:focus-visible {
 #shadow-image {
     width: 10px;
     height: 10px;
+    will-change: auto;
+    transition: all 1s;
 }
 
 #image,
@@ -186,4 +188,11 @@ button:focus-visible {
 .remark .symbol-wrap {
     transform: rotateY(0.5turn);
     display: inline-block;
+}
+
+.text-shadow::before {
+    font-family: initial;
+    content: '*';
+    font-size: inherit;
+    color: transparent;
 }

@@ -4,9 +4,11 @@ specifiers:
   copy-to-clipboard: ^3.3.2
   typescript: ^4.6.4
   vite: ^3.1.0
+  z-shuffle: ^1.0.1
 
 dependencies:
   copy-to-clipboard: 3.3.2
+  z-shuffle: 1.0.1
 
 devDependencies:
   typescript: 4.8.3
@@ -349,3 +351,7 @@ packages:
     optionalDependencies:
       fsevents: 2.3.2
     dev: true
+
+  /z-shuffle/1.0.1:
+    resolution: {integrity: sha512-i1S5XAjLtbBFldTl+kCJ+XIOLSWVnaIZfy7NUI3QeB4jmypsM0E0biJvJ0rqfbzjJxBpXadBbfOzn23HVlV0fw==}
+    dev: false

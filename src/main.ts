@@ -1,4 +1,5 @@
 import copy from 'copy-to-clipboard';
+import shuffle from 'z-shuffle';
 
 import './style.css';
 
@@ -14,7 +15,12 @@ const shadowRadiusDOM = document.getElementById('shadow-radius') as HTMLInputEle
 const dropTransparentDOM = document.getElementById('drop-transparent') as HTMLInputElement;
 const dropWhiteDOM = document.getElementById('drop-white') as HTMLInputElement;
 const dropAlphaDOM = document.getElementById('drop-alpha') as HTMLInputElement;
+const randomShadowDOM = document.getElementById('random-shadow') as HTMLInputElement;
+const textShadowDOM = document.getElementById('text-shadow') as HTMLInputElement;
+const shadowTextDOM = document.getElementById('shadow-text') as HTMLInputElement;
+const shadowTextSizeDOM = document.getElementById('shadow-text-size') as HTMLInputElement;
 const exportButtonDOM = document.getElementById('export') as HTMLButtonElement;
+const textShadowStyleDOM = document.getElementById('text-shadow-style') as HTMLStyleElement;
 
 const ctx = canvas.getContext('2d')!;
 const offscreenCtx = offscreenCanvas.getContext('2d')!;
@@ -29,12 +35,21 @@ let shadowRadius: number = 0;
 let dropTransparent: boolean = true;
 let dropAlpha: boolean = false;
 let dropWhite: boolean = false;
+let randomShadow: boolean = false;
+let textShadow: boolean = false;
+let shadowText = '@';
+let shadowTextSize = 1;
+let shadowStyle: Record<string, string> = {};
 precisionDOM.value = precision + '';
 shadowGapDOM.value = shadowGap + '';
 shadowRadiusDOM.value = shadowRadius + '';
 dropTransparentDOM.checked = dropTransparent;
 dropWhiteDOM.checked = dropWhite;
 dropAlphaDOM.checked = dropAlpha;
+randomShadowDOM.checked = randomShadow;
+textShadowDOM.checked = textShadow;
+shadowTextDOM.value = shadowText;
+shadowTextSizeDOM.value = shadowTextSize + '';
 
 document.getElementById('initial')?.addEventListener('click', () => {
     fileDOM.click();
@@ -47,7 +62,6 @@ document.querySelector('#import')?.addEventListener('click', () => {
 });
 
 const observer = new ResizeObserver(e => {
-    console.log(e);
     doPixel();
 });
 observer.observe(imageDOM);
@@ -91,6 +105,26 @@ dropAlphaDOM.addEventListener('change', e => {
     dropAlpha = target.checked;
     updateShadowImage();
 });
+randomShadowDOM.addEventListener('change', e => {
+    const target = e.target as HTMLInputElement;
+    randomShadow = target.checked;
+    updateShadowImage();
+});
+textShadowDOM.addEventListener('change', e => {
+    const target = e.target as HTMLInputElement;
+    textShadow = target.checked;
+    updateShadowImage();
+});
+shadowTextDOM.addEventListener('input', e => {
+    const target = e.target as HTMLInputElement;
+    shadowText = target.value.trim()[0] || shadowText;
+    updateShadowText();
+});
+shadowTextSizeDOM.addEventListener('input', e => {
+    const target = e.target as HTMLInputElement;
+    shadowTextSize = +target.value;
+    updateShadowImage();
+});
 
 const controllerFactory = <T = any>(): [Promise<T>, (result: T) => void, (error: any) => void] => {
     let success: (result: T) => void, error: (error: any) => void;
@@ -132,14 +166,22 @@ const loadImage = (url: string, imageDOM?: HTMLImageElement): Promise<HTMLImageE
     return controller;
 };
 
+const updateShadowText = () => {
+    textShadowStyleDOM.innerText = `
+.text-shadow::before {
+    content: '${shadowText}';
+}
+`;
+};
+
+updateShadowText();
+
 const doPixel = async () => {
     const imgUrl = await readFile(file);
     await loadImage(imgUrl, imageDOM);
     const ratio = imageDOM.naturalHeight / imageDOM.naturalWidth;
     offscreenCanvas.width = precision;
     offscreenCanvas.height = Math.round(precision * ratio);
-    console.log(imageDOM.clientHeight);
-    
     canvas.width = canvasWidth = Math.min(640, imageDOM.naturalWidth, imageDOM.clientWidth);
     canvas.height = canvasWidth * ratio;
     offscreenCtx.drawImage(imageDOM, 0, 0, offscreenCanvas.width, offscreenCanvas.height);
@@ -161,12 +203,33 @@ const doPixel = async () => {
 const updateShadowImage = () => {
     const ratio = imageDOM.naturalHeight / imageDOM.naturalWidth;
     const size = (canvasWidth / precision) | 0;
-    shadowImageDOM.style.height = shadowImageDOM.style.width = Math.max(size - shadowGap, 1) + 'px';
-    const boxShadow = outputBoxShadow(size);
-    shadowImageDOM.style.boxShadow = boxShadow || 'none';
-    shadowImageDOM.parentElement!.style.height = size * precision * ratio + 'px';
-    shadowImageDOM.parentElement!.style.width = size * precision + 'px';
-    shadowImageDOM.style.borderRadius = shadowRadius + '%';
+    const blockSize = Math.max(size - shadowGap, 1) + 'px';
+    const shadow = outputShadow(size) ?? 'none';
+    const height = size * precision * ratio + 'px';
+    const width = size * precision + 'px';
+    const borderRadius = shadowRadius + '%';
+    shadowImageDOM.parentElement!.style.height = height;
+    shadowImageDOM.parentElement!.style.width = width;
+    shadowImageDOM.style.width = shadowImageDOM.style.height = blockSize;
+    shadowImageDOM.style.fontSize = Math.max(size - shadowGap, 1) * (1 + (shadowTextSize - 1) / 5) + 'px';
+
+    if (textShadow) {
+        shadowImageDOM.style.textShadow = shadow;
+        shadowImageDOM.style.boxShadow = 'none';
+        shadowImageDOM.classList.add('text-shadow');
+    } else {
+        shadowImageDOM.style.textShadow = 'none';
+        shadowImageDOM.style.boxShadow = shadow;
+        shadowImageDOM.classList.remove('text-shadow');
+    }
+    shadowImageDOM.style.borderRadius = borderRadius;
+    shadowStyle = {
+        blockSize,
+        borderRadius,
+        shadow: shadow,
+        width,
+        height
+    };
 };
 
 function rgbToHex(r: number, g: number, b: number) {
@@ -174,7 +237,7 @@ function rgbToHex(r: number, g: number, b: number) {
     return ((r << 16) | (g << 8) | b).toString(16);
 }
 
-const outputBoxShadow = (size: number) => {
+const outputShadow = (size: number) => {
     const shadowArr = [];
     const ratio = imageDOM.naturalHeight / imageDOM.naturalWidth;
     for (let y = 0; y < precision * ratio; y++) {
@@ -190,22 +253,27 @@ const outputBoxShadow = (size: number) => {
             colorInfo.length = 4;
             const color = dropAlpha
                 ? '#' + ('000000' + rgbToHex(p[0], p[1], p[2])).slice(-6)
-                : `rgba(${colorInfo.map((v, i) => (i === 3 ? (v / 255).toFixed(3) : v)).join(',')})`;
-            shadowArr.push(`${color} ${x * size}px ${y * size}px` + (y === 0 && x === 0 ? ` 0 ${size}px inset` : ''));
+                : `rgba(${colorInfo.map((v, i) => (i === 3 ? +(v / 255).toFixed(3) : v)).join(',')})`;
+            shadowArr.push(
+                `${color} ${x * size}px ${y * size}px` +
+                    (y === 0 && x === 0 ? (` 0 ${size}px` + textShadow ? '' : ` inset`) : '')
+            );
         }
     }
-    return shadowArr.join(',');
+    return randomShadow ? shuffle(shadowArr).join(',') : shadowArr.join(',');
 };
 
 exportButtonDOM.addEventListener('click', () => {
-    const size = (canvasWidth / precision) | 0;
-    const shadow = outputBoxShadow(size);
     copy(`
+.wrap {
+    width: ${shadowStyle.width};
+    height: ${shadowStyle.height};
+}
 .pixel {
-    box-shadow: ${shadow};
-    width: ${size}px;
-    height: ${size}px;
-    border-radius: ${shadowRadius}%;
+    width: ${shadowStyle.blockSize};
+    height: ${shadowStyle.blockSize};
+    border-radius: ${shadowStyle.borderRadius};
+    box-shadow: ${shadowStyle.shadow};
 }
 `);
     alert('已复制到剪切板');
