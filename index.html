@@ -5,13 +5,14 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>像素图片转换器</title>
-  <script type="module" crossorigin src="/assets/index.3c640be6.js"></script>
-  <link rel="stylesheet" href="/assets/index.8d1e42b0.css">
+  <script type="module" crossorigin src="/assets/index.e121e252.js"></script>
+  <link rel="stylesheet" href="/assets/index.28800f6a.css">
 </head>
 
 <body>
     <div id="initial">
         <p>点击这里选择图片开始</p>
+        <div class="bg"></div>
     </div>
     <div id="app" style="display: none">
         <div class="card-info">
@@ -57,7 +58,7 @@
             </div>
         </div>
         <div class="card-shadow">
-            <h2>像素 box-shadow</h2>
+            <h2>像素 shadow</h2>
             <div class="size-wrap">
                 <div class="shadow-wrap">
                     <div id="shadow-image"></div>
@@ -84,6 +85,7 @@
     </style>
     <input type="file" id="file" accept="image/*" hidden>
     <canvas id="offscreen" width="20" height="20" hidden></canvas>
+    
     
 </body>
 
