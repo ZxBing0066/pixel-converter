@@ -162,6 +162,10 @@ button:focus-visible {
 .form {
     padding: 1em 0;
 }
+.form .item label {
+    display: flex;
+    justify-content: space-between;
+}
 
 @keyframes shake {
     0% {
