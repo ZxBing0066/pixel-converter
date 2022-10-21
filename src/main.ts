@@ -117,7 +117,7 @@ textShadowDOM.addEventListener('change', e => {
 });
 shadowTextDOM.addEventListener('input', e => {
     const target = e.target as HTMLInputElement;
-    shadowText = target.value.trim()[0] || shadowText;
+    shadowText = [...target.value.trim()][0] || shadowText;
     updateShadowText();
 });
 shadowTextSizeDOM.addEventListener('input', e => {

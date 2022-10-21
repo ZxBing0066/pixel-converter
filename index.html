@@ -10,6 +10,7 @@
 <body>
     <div id="initial">
         <p>点击这里选择图片开始</p>
+        <div class="bg"></div>
     </div>
     <div id="app" style="display: none">
         <div class="card-info">
@@ -55,7 +56,7 @@
             </div>
         </div>
         <div class="card-shadow">
-            <h2>像素 box-shadow</h2>
+            <h2>像素 shadow</h2>
             <div class="size-wrap">
                 <div class="shadow-wrap">
                     <div id="shadow-image"></div>
@@ -83,6 +84,7 @@
     <input type="file" id="file" accept="image/*" hidden>
     <canvas id="offscreen" width="20" height="20" hidden></canvas>
     <script type="module" src="/src/main.ts"></script>
+    <link rel="stylesheet" href="./src/bg.css">
 </body>
 
 </html>

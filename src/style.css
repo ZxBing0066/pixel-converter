@@ -58,7 +58,7 @@ button:focus-visible {
     width: 10px;
     height: 10px;
     will-change: auto;
-    transition: all 1s;
+    /* transition: all 1s; */
 }
 
 #image,
@@ -79,6 +79,7 @@ button:focus-visible {
     justify-content: center;
     align-items: center;
     background-color: #fff;
+    font-size: 1.5rem;
 }
 
 #pixel-image {
@@ -195,4 +196,20 @@ button:focus-visible {
     content: '*';
     font-size: inherit;
     color: transparent;
+}
+
+#initial .bg {
+    font-family: initial;
+    width: 1000px;
+    height: 800px;
+    position: absolute;
+    margin-left: 50%;
+    top: 0;
+    left: -500px;
+}
+#initial .bg::before {
+    content: '$';
+    font-size: 11px;
+    color: transparent;
+    opacity: 0.25;
 }
