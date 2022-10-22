@@ -4,81 +4,89 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <base target="_blank">
     <title>像素图片转换器</title>
 </head>
 
 <body>
-    <div id="initial">
-        <p>点击这里选择图片开始</p>
-        <div class="bg"></div>
+    <div id="main">
+        <div id="initial">
+            <p>点击这里选择图片开始</p>
+            <div class="bg"></div>
+        </div>
+        <div id="app" style="display: none">
+            <div class="card-info">
+                <h2 class="title">图片像素转换器</h2>
+                <div class="remark"><span class="symbol-wrap"><span class="symbol">✌️</span></span> 将你的图片转成像素风 <span
+                        class="symbol">✌️</span></div>
+                <hr>
+                <div class="form">
+                    <div class="item">
+                        <label>精度<input type="range" id="precision" min="2" max="100"></label>
+                    </div>
+                    <div class="item">
+                        <label>shadow 间隙<input type="range" id="shadow-gap" min="0" max="10"></label>
+                    </div>
+                    <div class="item">
+                        <label>shadow 圆角<input type="range" id="shadow-radius" min="0" max="50"></label>
+                    </div>
+                    <div class="item">
+                        <label>去除 shadow 中的透明块<input type="checkbox" id="drop-transparent"></label>
+                    </div>
+                    <div class="item">
+                        <label>去除 shadow 中的白色<input type="checkbox" id="drop-white"></label>
+                    </div>
+                    <div class="item">
+                        <label>去除 shadow 中的 alpha 通道<input type="checkbox" id="drop-alpha"></label>
+                    </div>
+                    <div class="item">
+                        <label>随机 shadow 中的色块顺序<input type="checkbox" id="random-shadow"></label>
+                    </div>
+                    <div class="item">
+                        <label>使用 text-shadow<input type="checkbox" id="text-shadow"></label>
+                    </div>
+                    <div class="item">
+                        <label>自定义 text-shadow 文字<input type="text" id="shadow-text"></label>
+                    </div>
+                    <div class="item">
+                        <label>text-shadow 文字比例<input type="range" id="shadow-text-size" min="1" max="31"></label>
+                    </div>
+                </div>
+                <div class="btn-group">
+                    <button id="import">更换图片</button>
+                    <button id="export">复制 box-shadow 样式</button>
+                </div>
+            </div>
+            <div class="card-shadow">
+                <h2>像素 shadow</h2>
+                <div class="size-wrap">
+                    <div class="shadow-wrap">
+                        <div id="shadow-image"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-canvas">
+                <h2>像素图</h2>
+                <div class="size-wrap">
+                    <canvas id="canvas" width="200" height="200"></canvas>
+                </div>
+            </div>
+            <div class="card-image">
+                <h2>原图</h2>
+                <div class="image-wrap">
+                    <img id="image" src="" alt="">
+                </div>
+                <div class="tip">
+                    点击更换图片
+                </div>
+            </div>
+        </div>
     </div>
-    <div id="app" style="display: none">
-        <div class="card-info">
-            <h2 class="title">图片像素转换器</h2>
-            <div class="remark"><span class="symbol-wrap"><span class="symbol">✌️</span></span> 将你的图片转成像素风 <span
-                    class="symbol">✌️</span></div>
-            <hr>
-            <div class="form">
-                <div class="item">
-                    <label>精度<input type="range" id="precision" min="2" max="100"></label>
-                </div>
-                <div class="item">
-                    <label>shadow 间隙<input type="range" id="shadow-gap" min="0" max="10"></label>
-                </div>
-                <div class="item">
-                    <label>shadow 圆角<input type="range" id="shadow-radius" min="0" max="50"></label>
-                </div>
-                <div class="item">
-                    <label>去除 shadow 中的透明块<input type="checkbox" id="drop-transparent"></label>
-                </div>
-                <div class="item">
-                    <label>去除 shadow 中的白色<input type="checkbox" id="drop-white"></label>
-                </div>
-                <div class="item">
-                    <label>去除 shadow 中的 alpha 通道<input type="checkbox" id="drop-alpha"></label>
-                </div>
-                <div class="item">
-                    <label>随机 shadow 中的色块顺序<input type="checkbox" id="random-shadow"></label>
-                </div>
-                <div class="item">
-                    <label>使用 text-shadow<input type="checkbox" id="text-shadow"></label>
-                </div>
-                <div class="item">
-                    <label>自定义 text-shadow 文字<input type="text" id="shadow-text"></label>
-                </div>
-                <div class="item">
-                    <label>text-shadow 文字比例<input type="range" id="shadow-text-size" min="1" max="31"></label>
-                </div>
-            </div>
-            <div class="btn-group">
-                <button id="import">更换图片</button>
-                <button id="export">复制 box-shadow 样式</button>
-            </div>
-        </div>
-        <div class="card-shadow">
-            <h2>像素 shadow</h2>
-            <div class="size-wrap">
-                <div class="shadow-wrap">
-                    <div id="shadow-image"></div>
-                </div>
-            </div>
-        </div>
-        <div class="card-canvas">
-            <h2>像素图</h2>
-            <div class="size-wrap">
-                <canvas id="canvas" width="200" height="200"></canvas>
-            </div>
-        </div>
-        <div class="card-image">
-            <h2>原图</h2>
-            <div class="image-wrap">
-                <img id="image" src="" alt="">
-            </div>
-            <div class="tip">
-                点击更换图片
-            </div>
-        </div>
-    </div>
+    <footer id="footer">
+        <p class="copyright">© 2022-present <a href="https://github.com/ZxBing0066">ZxBing0066</a>. All Rights Reserved.
+        </p>
+        <a href="https://github.com/ZxBing0066/pixel-converter" class="github"><img src="/GitHub.png" alt=""></a>
+    </footer>
     <style id="text-shadow-style">
     </style>
     <input type="file" id="file" accept="image/*" hidden>

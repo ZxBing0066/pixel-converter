@@ -22,6 +22,8 @@ body {
     height: 100%;
     margin: 0;
     font-family: pixel-font;
+    display: flex;
+    flex-direction: column;
 }
 
 h1 {
@@ -212,4 +214,35 @@ button:focus-visible {
     font-size: 11px;
     color: transparent;
     opacity: 0.25;
+}
+
+#footer {
+    position: sticky;
+    bottom: 0;
+    background: rgba(217, 202, 202, 0.3);
+    backdrop-filter: blur(20px);
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5em 10%;
+    border-top: 1px solid rgba(100, 100, 100, 0.1);
+}
+#footer .copyright {
+    margin: 0;
+    display: inline-flex;
+    align-items: center;
+}
+#footer .copyright a {
+    padding: 0 0 0 1em;
+}
+#footer .github {
+    width: 1.5em;
+    height: 1.5em;
+    display: inline-block;
+}
+
+#footer .github img {
+    width: 100%;
+}
+#main {
+    flex: 1;
 }
