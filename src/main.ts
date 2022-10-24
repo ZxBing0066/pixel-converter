@@ -255,11 +255,12 @@ const outputShadow = (size: number) => {
                 ? '#' + ('000000' + rgbToHex(p[0], p[1], p[2])).slice(-6)
                 : `rgba(${colorInfo.map((v, i) => (i === 3 ? +(v / 255).toFixed(3) : v)).join(',')})`;
             shadowArr.push(
-                `${color} ${x * size}px ${y * size}px` +
-                    (y === 0 && x === 0 ? ` 0 ${size}px` + (textShadow ? '' : ` inset`) : '')
+                `${color} ${x * size}px ${y * size}px` + (!textShadow && y === 0 && x === 0 ? ` 0 ${size}px inset` : '')
             );
         }
     }
+    console.log(shadowArr);
+
     return randomShadow ? shuffle(shadowArr).join(',') : shadowArr.join(',');
 };
 
