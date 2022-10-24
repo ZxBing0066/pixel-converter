@@ -259,8 +259,6 @@ const outputShadow = (size: number) => {
             );
         }
     }
-    console.log(shadowArr);
-
     return randomShadow ? shuffle(shadowArr).join(',') : shadowArr.join(',');
 };
 
