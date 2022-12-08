@@ -60,7 +60,6 @@ button:focus-visible {
     width: 10px;
     height: 10px;
     will-change: auto;
-    /* transition: all 1s; */
 }
 
 #image,

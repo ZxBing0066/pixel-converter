@@ -15,12 +15,13 @@ const shadowRadiusDOM = document.getElementById('shadow-radius') as HTMLInputEle
 const dropTransparentDOM = document.getElementById('drop-transparent') as HTMLInputElement;
 const dropWhiteDOM = document.getElementById('drop-white') as HTMLInputElement;
 const dropAlphaDOM = document.getElementById('drop-alpha') as HTMLInputElement;
-const randomShadowDOM = document.getElementById('random-shadow') as HTMLInputElement;
 const textShadowDOM = document.getElementById('text-shadow') as HTMLInputElement;
 const shadowTextDOM = document.getElementById('shadow-text') as HTMLInputElement;
 const shadowTextSizeDOM = document.getElementById('shadow-text-size') as HTMLInputElement;
 const exportButtonDOM = document.getElementById('export') as HTMLButtonElement;
 const textShadowStyleDOM = document.getElementById('text-shadow-style') as HTMLStyleElement;
+const animeModeDOM = document.getElementById('anime-mode') as HTMLInputElement;
+const animeShadowStyleDOM = document.getElementById('anime-shadow-style') as HTMLStyleElement;
 
 const ctx = canvas.getContext('2d')!;
 const offscreenCtx = offscreenCanvas.getContext('2d')!;
@@ -35,8 +36,8 @@ let shadowRadius: number = 0;
 let dropTransparent: boolean = true;
 let dropAlpha: boolean = false;
 let dropWhite: boolean = false;
-let randomShadow: boolean = false;
 let textShadow: boolean = false;
+let animeMode: boolean = false;
 let shadowText = '@';
 let shadowTextSize = 1;
 let shadowStyle: Record<string, string> = {};
@@ -46,10 +47,10 @@ shadowRadiusDOM.value = shadowRadius + '';
 dropTransparentDOM.checked = dropTransparent;
 dropWhiteDOM.checked = dropWhite;
 dropAlphaDOM.checked = dropAlpha;
-randomShadowDOM.checked = randomShadow;
 textShadowDOM.checked = textShadow;
 shadowTextDOM.value = shadowText;
 shadowTextSizeDOM.value = shadowTextSize + '';
+animeModeDOM.checked = animeMode;
 
 document.getElementById('initial')?.addEventListener('click', () => {
     fileDOM.click();
@@ -105,11 +106,6 @@ dropAlphaDOM.addEventListener('change', e => {
     dropAlpha = target.checked;
     updateShadowImage();
 });
-randomShadowDOM.addEventListener('change', e => {
-    const target = e.target as HTMLInputElement;
-    randomShadow = target.checked;
-    updateShadowImage();
-});
 textShadowDOM.addEventListener('change', e => {
     const target = e.target as HTMLInputElement;
     textShadow = target.checked;
@@ -123,6 +119,11 @@ shadowTextDOM.addEventListener('input', e => {
 shadowTextSizeDOM.addEventListener('input', e => {
     const target = e.target as HTMLInputElement;
     shadowTextSize = +target.value;
+    updateShadowImage();
+});
+animeModeDOM.addEventListener('change', e => {
+    const target = e.target as HTMLInputElement;
+    animeMode = target.checked;
     updateShadowImage();
 });
 
@@ -174,6 +175,22 @@ const updateShadowText = () => {
 `;
 };
 
+const updateAnimeShadowStyle = (hoverShadow: string, defaultShadow: string) => {
+    const shadowType = textShadow ? 'text-shadow' : 'box-shadow';
+    animeShadowStyleDOM.innerText = !animeMode
+        ? ''
+        : `
+#shadow-image {
+    ${shadowType}: ${defaultShadow} !important;
+    will-change: auto;
+    transition: box-shadow 1.2s, text-shadow 1.2s;
+}
+.shadow-wrap:hover #shadow-image {
+    ${shadowType}: ${hoverShadow} !important;
+}
+`;
+};
+
 updateShadowText();
 
 const doPixel = async () => {
@@ -204,7 +221,8 @@ const updateShadowImage = () => {
     const ratio = imageDOM.naturalHeight / imageDOM.naturalWidth;
     const size = (canvasWidth / precision) | 0;
     const blockSize = Math.max(size - shadowGap, 1) + 'px';
-    const shadow = outputShadow(size) ?? 'none';
+    const shadow = outputShadow(size);
+    const animeShadow = animeMode ? outputRandomShadow(size) : 'none';
     const height = size * precision * ratio + 'px';
     const width = size * precision + 'px';
     const borderRadius = shadowRadius + '%';
@@ -223,10 +241,12 @@ const updateShadowImage = () => {
         shadowImageDOM.classList.remove('text-shadow');
     }
     shadowImageDOM.style.borderRadius = borderRadius;
+    updateAnimeShadowStyle(shadow, animeShadow);
     shadowStyle = {
         blockSize,
         borderRadius,
-        shadow: shadow,
+        shadow,
+        animeShadow,
         width,
         height
     };
@@ -254,26 +274,113 @@ const outputShadow = (size: number) => {
             const color = dropAlpha
                 ? '#' + ('000000' + rgbToHex(p[0], p[1], p[2])).slice(-6)
                 : `rgba(${colorInfo.map((v, i) => (i === 3 ? +(v / 255).toFixed(3) : v)).join(',')})`;
-            shadowArr.push(
-                `${color} ${x * size}px ${y * size}px` + (!textShadow && y === 0 && x === 0 ? ` 0 ${size}px inset` : '')
-            );
+            shadowArr.push(`${color} ${x * size}px ${y * size}px` + (!textShadow && y === 0 && x === 0 ? ` 0 ${size}px inset` : ''));
         }
     }
-    return randomShadow ? shuffle(shadowArr).join(',') : shadowArr.join(',');
+    return shadowArr.join(',');
 };
 
+const outputRandomShadow = (size: number) => {
+    const shadowArr = [];
+    const ratio = imageDOM.naturalHeight / imageDOM.naturalWidth;
+    let allPair: [number, number][] = [];
+    for (let y = 0; y < precision * ratio; y++) {
+        for (let x = 0; x < precision; x++) {
+            allPair.push([x, y]);
+        }
+    }
+    allPair = [allPair[0], ...shuffle(allPair.slice(1))];
+    let i = 0;
+    for (let y = 0; y < precision * ratio; y++) {
+        for (let x = 0; x < precision; x++) {
+            const cord = allPair[i++];
+            const _x = cord[0],
+                _y = cord[1];
+            const p = offscreenCtx.getImageData(x, y, 1, 1).data;
+            if (dropTransparent && p[3] === 0) {
+                continue;
+            }
+            if (dropWhite && p[3] !== 0 && p[0] === 255 && p[1] === 255 && p[2] === 255) {
+                continue;
+            }
+            const colorInfo = [...p];
+            colorInfo.length = 4;
+            const color = dropAlpha
+                ? '#' + ('000000' + rgbToHex(p[0], p[1], p[2])).slice(-6)
+                : `rgba(${colorInfo.map((v, i) => (i === 3 ? +(v / 255).toFixed(3) : v)).join(',')})`;
+            shadowArr.push(`${color} ${_x * size}px ${_y * size}px` + (!textShadow && _y === 0 && _x === 0 ? ` 0 ${size}px inset` : ''));
+        }
+    }
+    return shadowArr.join(',');
+};
+
+// const outputRandomShadow = (size: number) => {
+//     const shadowArr = [];
+//     const ratio = imageDOM.naturalHeight / imageDOM.naturalWidth;
+//     let allPair: [number, number][] = [];
+//     for (let y = 0; y < precision * ratio; y++) {
+//         for (let x = 0; x < precision; x++) {
+//             allPair.push([x, y]);
+//         }
+//     }
+//     allPair = [allPair[0], ...shuffle(allPair.slice(1))];
+//     let i = 0;
+//     for (let y = 0; y < precision * ratio; y++) {
+//         for (let x = 0; x < precision; x++) {
+//             const cord = allPair[i++];
+//             const p = offscreenCtx.getImageData(cord[0], cord[1], 1, 1).data;
+//             if (dropTransparent && p[3] === 0) {
+//                 continue;
+//             }
+//             if (dropWhite && p[3] !== 0 && p[0] === 255 && p[1] === 255 && p[2] === 255) {
+//                 continue;
+//             }
+//             const colorInfo = [...p];
+//             colorInfo.length = 4;
+//             const color = dropAlpha
+//                 ? '#' + ('000000' + rgbToHex(p[0], p[1], p[2])).slice(-6)
+//                 : `rgba(${colorInfo.map((v, i) => (i === 3 ? +(v / 255).toFixed(3) : v)).join(',')})`;
+//             shadowArr.push(`${color} ${x * size}px ${y * size}px` + (!textShadow && y === 0 && x === 0 ? ` 0 ${size}px inset` : ''));
+//         }
+//     }
+//     return randomShadow ? [shadowArr[0], ...shuffle(shadowArr.slice(1))].join(',') : shadowArr.join(',');
+// };
+
 exportButtonDOM.addEventListener('click', () => {
-    copy(`
+    const { width, height, blockSize, borderRadius, shadow, animeShadow } = shadowStyle;
+
+    const shadowType = textShadow ? 'text-shadow' : 'box-shadow';
+    const style = !animeMode
+        ? `
 .wrap {
-    width: ${shadowStyle.width};
-    height: ${shadowStyle.height};
+    width: ${width};
+    height: ${height};
 }
 .pixel {
-    width: ${shadowStyle.blockSize};
-    height: ${shadowStyle.blockSize};
-    border-radius: ${shadowStyle.borderRadius};
-    box-shadow: ${shadowStyle.shadow};
+    width: ${blockSize};
+    height: ${blockSize};
+    border-radius: ${borderRadius};
+    ${shadowType}: ${shadow};
 }
-`);
+        `
+        : `
+.wrap {
+    width: ${width};
+    height: ${height};
+}
+.pixel {
+    width: ${blockSize};
+    height: ${blockSize};
+    border-radius: ${borderRadius};
+    ${shadowType}: ${animeShadow} !important;
+    will-change: auto;
+    transition: box-shadow 1.2s, text-shadow 1.2s;
+}
+.shadow-wrap:hover .pixel {
+    ${shadowType}: ${shadow} !important;
+}
+`;
+
+    copy(style);
     alert('已复制到剪切板');
 });
