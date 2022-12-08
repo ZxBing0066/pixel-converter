@@ -7,7 +7,6 @@ const imageDOM = document.getElementById('image') as HTMLImageElement;
 const canvas = document.getElementById('canvas') as HTMLCanvasElement;
 const offscreenCanvas = document.getElementById('offscreen') as HTMLCanvasElement;
 const fileDOM = document.getElementById('file') as HTMLInputElement;
-const shadowImageDOM = document.getElementById('shadow-image')!;
 
 const precisionDOM = document.getElementById('precision') as HTMLInputElement;
 const shadowGapDOM = document.getElementById('shadow-gap') as HTMLInputElement;
@@ -19,9 +18,8 @@ const textShadowDOM = document.getElementById('text-shadow') as HTMLInputElement
 const shadowTextDOM = document.getElementById('shadow-text') as HTMLInputElement;
 const shadowTextSizeDOM = document.getElementById('shadow-text-size') as HTMLInputElement;
 const exportButtonDOM = document.getElementById('export') as HTMLButtonElement;
-const textShadowStyleDOM = document.getElementById('text-shadow-style') as HTMLStyleElement;
 const animeModeDOM = document.getElementById('anime-mode') as HTMLInputElement;
-const animeShadowStyleDOM = document.getElementById('anime-shadow-style') as HTMLStyleElement;
+const pixelStyleDOM = document.getElementById('pixel-style') as HTMLStyleElement;
 
 const ctx = canvas.getContext('2d')!;
 const offscreenCtx = offscreenCanvas.getContext('2d')!;
@@ -114,7 +112,7 @@ textShadowDOM.addEventListener('change', e => {
 shadowTextDOM.addEventListener('input', e => {
     const target = e.target as HTMLInputElement;
     shadowText = [...target.value.trim()][0] || shadowText;
-    updateShadowText();
+    updateShadowImage();
 });
 shadowTextSizeDOM.addEventListener('input', e => {
     const target = e.target as HTMLInputElement;
@@ -167,31 +165,56 @@ const loadImage = (url: string, imageDOM?: HTMLImageElement): Promise<HTMLImageE
     return controller;
 };
 
-const updateShadowText = () => {
-    textShadowStyleDOM.innerText = `
-.text-shadow::before {
-    content: '${shadowText}';
+const generateShadowCss = () => {
+    const { width, height, blockSize, borderRadius, shadow, animeShadow, fontSize } = shadowStyle;
+
+    const shadowType = textShadow ? 'text-shadow' : 'box-shadow';
+    let style = `
+.pixel-wrap {
+    width: ${width};
+    height: ${height};
+}
+.pixel {
+    width: ${blockSize};
+    height: ${blockSize};
+    border-radius: ${borderRadius};
 }
 `;
-};
 
-const updateAnimeShadowStyle = (hoverShadow: string, defaultShadow: string) => {
-    const shadowType = textShadow ? 'text-shadow' : 'box-shadow';
-    animeShadowStyleDOM.innerText = !animeMode
-        ? ''
-        : `
-#shadow-image {
-    ${shadowType}: ${defaultShadow} !important;
+    if (textShadow) {
+        style += `
+.pixel::before {
+    content: '${shadowText}';
+    font-size: ${fontSize};
+    font-family: initial;
+    color: transparent;
+}
+`;
+    }
+    if (animeMode) {
+        style += `
+.pixel {
+    ${shadowType}: ${animeShadow};
     will-change: auto;
     transition: box-shadow 1.2s, text-shadow 1.2s;
 }
-.shadow-wrap:hover #shadow-image {
-    ${shadowType}: ${hoverShadow} !important;
+.pixel-wrap:hover .pixel {
+    ${shadowType}: ${shadow};
 }
 `;
+    } else {
+        style += `
+.pixel {
+    ${shadowType}: ${shadow};
+}
+`;
+    }
+    return style;
 };
 
-updateShadowText();
+const updateAnimeShadowStyle = () => {
+    pixelStyleDOM.innerHTML = generateShadowCss();
+};
 
 const doPixel = async () => {
     const imgUrl = await readFile(file);
@@ -226,30 +249,17 @@ const updateShadowImage = () => {
     const height = size * precision * ratio + 'px';
     const width = size * precision + 'px';
     const borderRadius = shadowRadius + '%';
-    shadowImageDOM.parentElement!.style.height = height;
-    shadowImageDOM.parentElement!.style.width = width;
-    shadowImageDOM.style.width = shadowImageDOM.style.height = blockSize;
-    shadowImageDOM.style.fontSize = Math.max(size - shadowGap, 1) * (1 + (shadowTextSize - 1) / 5) + 'px';
-
-    if (textShadow) {
-        shadowImageDOM.style.textShadow = shadow;
-        shadowImageDOM.style.boxShadow = 'none';
-        shadowImageDOM.classList.add('text-shadow');
-    } else {
-        shadowImageDOM.style.textShadow = 'none';
-        shadowImageDOM.style.boxShadow = shadow;
-        shadowImageDOM.classList.remove('text-shadow');
-    }
-    shadowImageDOM.style.borderRadius = borderRadius;
-    updateAnimeShadowStyle(shadow, animeShadow);
+    const fontSize = Math.max(size - shadowGap, 1) * (1 + (shadowTextSize - 1) / 5) + 'px';
     shadowStyle = {
         blockSize,
         borderRadius,
         shadow,
         animeShadow,
         width,
-        height
+        height,
+        fontSize
     };
+    updateAnimeShadowStyle();
 };
 
 function rgbToHex(r: number, g: number, b: number) {
@@ -289,7 +299,7 @@ const outputRandomShadow = (size: number) => {
             allPair.push([x, y]);
         }
     }
-    allPair = [allPair[0], ...shuffle(allPair.slice(1))];
+    allPair = textShadow ? shuffle(allPair) : [allPair[0], ...shuffle(allPair.slice(1))];
     let i = 0;
     for (let y = 0; y < precision * ratio; y++) {
         for (let x = 0; x < precision; x++) {
@@ -347,40 +357,7 @@ const outputRandomShadow = (size: number) => {
 // };
 
 exportButtonDOM.addEventListener('click', () => {
-    const { width, height, blockSize, borderRadius, shadow, animeShadow } = shadowStyle;
-
-    const shadowType = textShadow ? 'text-shadow' : 'box-shadow';
-    const style = !animeMode
-        ? `
-.wrap {
-    width: ${width};
-    height: ${height};
-}
-.pixel {
-    width: ${blockSize};
-    height: ${blockSize};
-    border-radius: ${borderRadius};
-    ${shadowType}: ${shadow};
-}
-        `
-        : `
-.wrap {
-    width: ${width};
-    height: ${height};
-}
-.pixel {
-    width: ${blockSize};
-    height: ${blockSize};
-    border-radius: ${borderRadius};
-    ${shadowType}: ${animeShadow} !important;
-    will-change: auto;
-    transition: box-shadow 1.2s, text-shadow 1.2s;
-}
-.shadow-wrap:hover .pixel {
-    ${shadowType}: ${shadow} !important;
-}
-`;
-
+    const style = generateShadowCss();
     copy(style);
     alert('已复制到剪切板');
 });
