@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <base target="_blank">
     <title>像素图片转换器</title>
-  <script type="module" crossorigin src="/assets/index.968f6b89.js"></script>
+  <script type="module" crossorigin src="/assets/index.1edd6481.js"></script>
   <link rel="stylesheet" href="/assets/index.ce6140af.css">
 </head>
 
@@ -42,9 +42,6 @@
                         <label>去除 shadow 中的 alpha 通道<input type="checkbox" id="drop-alpha"></label>
                     </div>
                     <div class="item">
-                        <label>随机 shadow 中的色块顺序<input type="checkbox" id="random-shadow"></label>
-                    </div>
-                    <div class="item">
                         <label>使用 text-shadow<input type="checkbox" id="text-shadow"></label>
                     </div>
                     <div class="item">
@@ -53,10 +50,13 @@
                     <div class="item">
                         <label>text-shadow 文字比例<input type="range" id="shadow-text-size" min="1" max="31"></label>
                     </div>
+                    <div class="item">
+                        <label>开启动画模式<input type="checkbox" id="anime-mode"></label>
+                    </div>
                 </div>
                 <div class="btn-group">
                     <button id="import">更换图片</button>
-                    <button id="export">复制 box-shadow 样式</button>
+                    <button id="export">复制 shadow 样式</button>
                 </div>
             </div>
             <div class="card-shadow">
@@ -89,8 +89,8 @@
         </p>
         <a href="https://github.com/ZxBing0066/pixel-converter" class="github"><img src="/GitHub.png" alt=""></a>
     </footer>
-    <style id="text-shadow-style">
-    </style>
+    <style id="text-shadow-style"></style>
+    <style id="anime-shadow-style"></style>
     <input type="file" id="file" accept="image/*" hidden>
     <canvas id="offscreen" width="20" height="20" hidden></canvas>
     
