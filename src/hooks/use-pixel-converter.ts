@@ -42,6 +42,15 @@ function rgbToHex(r: number, g: number, b: number) {
   return ((r << 16) | (g << 8) | b).toString(16).padStart(6, "0");
 }
 
+export function downloadFile(url: string, filename: string) {
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
 export function usePixelConverter() {
   const [fileUrl, setFileUrl] = useState<string | null>(null);
   const [settings, setSettings] = useState<PixelSettings>(defaultSettings);
@@ -174,30 +183,82 @@ export function usePixelConverter() {
       // Restore drawing to main visible canvas
       const mainCanvas = mainCanvasRef.current;
       if (mainCanvas) {
-        mainCanvas.width = newCanvasWidth;
-        mainCanvas.height = newCanvasWidth * r;
+        const size = Math.floor(newCanvasWidth / settings.precision) || 1;
+        const exactWidth = size * offscreen.width;
+        const exactHeight = size * offscreen.height;
+
+        mainCanvas.width = exactWidth;
+        mainCanvas.height = exactHeight;
         const mainCtx = mainCanvas.getContext("2d");
         if (mainCtx) {
           mainCtx.imageSmoothingEnabled = false; // Nearest neighbor up-scaling
-          // cast to any for older browser compat aliases if strictly needed, but JS handles it
-          (mainCtx as any).mozImageSmoothingEnabled = false;
-          (mainCtx as any).webkitImageSmoothingEnabled = false;
-          (mainCtx as any).msImageSmoothingEnabled = false;
-          mainCtx.drawImage(offscreen, 0, 0, newCanvasWidth, newCanvasWidth * r);
+          const extCtx = mainCtx as CanvasRenderingContext2D & {
+            mozImageSmoothingEnabled?: boolean;
+            webkitImageSmoothingEnabled?: boolean;
+            msImageSmoothingEnabled?: boolean;
+          };
+          extCtx.mozImageSmoothingEnabled = false;
+          extCtx.webkitImageSmoothingEnabled = false;
+          extCtx.msImageSmoothingEnabled = false;
+
+          // Instead of simple drawImage, draw blocks respecting shadowGap/radius setting to match CSS view
+          mainCtx.clearRect(0, 0, exactWidth, exactHeight);
+          
+          const visualBlockSize = Math.max(size - settings.shadowGap, 1);
+          const imageData = ctx.getImageData(0, 0, offscreen.width, offscreen.height).data;
+          
+          // Draw a checkerboard or just transparent background (it's already transparent due to clearRect)
+          
+          for (let y = 0; y < offscreen.height; y++) {
+            for (let x = 0; x < offscreen.width; x++) {
+              const pixelIndex = (y * offscreen.width + x) * 4;
+              const rColor = imageData[pixelIndex];
+              const gColor = imageData[pixelIndex + 1];
+              const bColor = imageData[pixelIndex + 2];
+              const aColor = imageData[pixelIndex + 3];
+
+              // Filtering logic same as processShadow
+              if (settings.dropTransparent && aColor === 0) continue;
+              if (settings.dropWhite && aColor !== 0 && rColor === 255 && gColor === 255 && bColor === 255) continue;
+
+              if (settings.dropAlpha) {
+                mainCtx.fillStyle = `rgb(${rColor},${gColor},${bColor})`;
+              } else {
+                mainCtx.fillStyle = `rgba(${rColor},${gColor},${bColor},${+(aColor / 255).toFixed(3)})`;
+              }
+              
+              if (settings.shadowRadius > 0) {
+                // Approximate border radius on canvas
+                const rRadius = visualBlockSize * (settings.shadowRadius / 100);
+                const rectX = x * size;
+                const rectY = y * size;
+                mainCtx.beginPath();
+                mainCtx.moveTo(rectX + rRadius, rectY);
+                mainCtx.lineTo(rectX + visualBlockSize - rRadius, rectY);
+                mainCtx.quadraticCurveTo(rectX + visualBlockSize, rectY, rectX + visualBlockSize, rectY + rRadius);
+                mainCtx.lineTo(rectX + visualBlockSize, rectY + visualBlockSize - rRadius);
+                mainCtx.quadraticCurveTo(rectX + visualBlockSize, rectY + visualBlockSize, rectX + visualBlockSize - rRadius, rectY + visualBlockSize);
+                mainCtx.lineTo(rectX + rRadius, rectY + visualBlockSize);
+                mainCtx.quadraticCurveTo(rectX, rectY + visualBlockSize, rectX, rectY + visualBlockSize - rRadius);
+                mainCtx.lineTo(rectX, rectY + rRadius);
+                mainCtx.quadraticCurveTo(rectX, rectY, rectX + rRadius, rectY);
+                mainCtx.closePath();
+                mainCtx.fill();
+              } else {
+                mainCtx.fillRect(x * size, y * size, visualBlockSize, visualBlockSize);
+              }
+            }
+          }
         }
       }
     }
-  }, [settings.precision, updateOutput]);
+  }, [settings, updateOutput]);
 
   useEffect(() => {
     if (fileUrl && imageRef.current && imageRef.current.complete) {
-      if (offscreenCanvasRef.current && offscreenCanvasRef.current.width !== settings.precision) {
-         processImage();
-      } else {
-         updateOutput(ratio, canvasWidth);
-      }
+      processImage();
     }
-  }, [settings, fileUrl, processImage, updateOutput, ratio, canvasWidth]);
+  }, [settings, fileUrl, processImage, ratio, canvasWidth]);
 
   return {
     fileUrl,

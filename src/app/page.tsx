@@ -2,12 +2,13 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { usePixelConverter } from "@/hooks/use-pixel-converter";
+import { usePixelConverter, downloadFile } from "@/hooks/use-pixel-converter";
 
 type TabType = 'css' | 'canvas' | 'original';
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<TabType>('css');
+  const [isCopied, setIsCopied] = useState(false);
 
   const {
     fileUrl,
@@ -48,8 +49,18 @@ export default function Home() {
     }
 
     navigator.clipboard.writeText(css).then(() => {
-      alert("复制 shadow 样式成功");
+      setIsCopied(true);
+      setTimeout(() => setIsCopied(false), 2000);
     });
+  };
+
+  const handleDownloadImage = async () => {
+    if ((activeTab === 'canvas' || activeTab === 'css') && mainCanvasRef.current) {
+      // Both CSS and Canvas pixel views are visually identical on the canvas
+      // Exporting from canvas ensures it works flawlessly without generating huge box-shadow strings that fail html2canvas
+      const dataUrl = mainCanvasRef.current.toDataURL("image/png");
+      downloadFile(dataUrl, "pixel_art.png");
+    }
   };
 
   return (
@@ -84,172 +95,210 @@ export default function Home() {
           </div>
         ) : (
           <div id="app">
-            <div className="card-info">
-              <h2 className="title">图片像素转换器</h2>
-              <div className="remark">
-                <span className="symbol-wrap"><span className="symbol">✌️</span></span> 将你的图片转成像素风 <span className="symbol">✌️</span>
+            <div className="card-info glass-panel">
+              <div className="card-header">
+                <h2 className="title">Pixel Converter</h2>
+                <div className="remark">
+                  <span className="symbol-wrap"><span className="symbol" role="img" aria-label="peace">✌️</span></span> 将你的图片转成像素风 <span className="symbol" role="img" aria-label="peace">✌️</span>
+                </div>
               </div>
-              <hr />
-              <div className="form">
-                <div className="item">
-                  <label>
-                    精度
+              
+              <div className="form-container scrollable-area">
+                <div className="form-section">
+                  <h3 className="section-title">基础调整</h3>
+                  
+                  <div className="control-group">
+                    <div className="control-header">
+                      <label htmlFor="precision">精度</label>
+                      <span className="control-value">{settings.precision}</span>
+                    </div>
                     <input
+                      id="precision"
                       type="range"
                       min="2"
                       max="100"
+                      className="modern-range"
                       value={settings.precision}
                       onChange={(e) => setSettings({ ...settings, precision: Number(e.target.value) })}
                     />
-                  </label>
-                </div>
-                <div className="item">
-                  <label>
-                    shadow 间隙
+                  </div>
+
+                  <div className="control-group">
+                    <div className="control-header">
+                      <label htmlFor="shadowGap">阴影间隙</label>
+                      <span className="control-value">{settings.shadowGap} px</span>
+                    </div>
                     <input
+                      id="shadowGap"
                       type="range"
                       min="0"
                       max="10"
+                      className="modern-range"
                       value={settings.shadowGap}
                       onChange={(e) => setSettings({ ...settings, shadowGap: Number(e.target.value) })}
                     />
-                  </label>
-                </div>
-                <div className="item">
-                  <label>
-                    shadow 圆角
+                  </div>
+
+                  <div className="control-group">
+                    <div className="control-header">
+                      <label htmlFor="shadowRadius">阴影圆角</label>
+                      <span className="control-value">{settings.shadowRadius}%</span>
+                    </div>
                     <input
+                      id="shadowRadius"
                       type="range"
                       min="0"
                       max="50"
+                      className="modern-range"
                       value={settings.shadowRadius}
                       onChange={(e) => setSettings({ ...settings, shadowRadius: Number(e.target.value) })}
                     />
-                  </label>
+                  </div>
                 </div>
-                <div className="item">
-                  <label>
-                    去除 shadow 中的透明块
-                    <input
-                      type="checkbox"
-                      checked={settings.dropTransparent}
-                      onChange={(e) => setSettings({ ...settings, dropTransparent: e.target.checked })}
-                    />
-                  </label>
+
+                <div className="form-section">
+                  <h3 className="section-title">色彩过滤</h3>
+                  
+                  <div className="control-group switch-group">
+                    <label htmlFor="dropTransparent">去除透明块</label>
+                    <label className="switch">
+                      <input
+                        id="dropTransparent"
+                        type="checkbox"
+                        checked={settings.dropTransparent}
+                        onChange={(e) => setSettings({ ...settings, dropTransparent: e.target.checked })}
+                      />
+                      <span className="slider round"></span>
+                    </label>
+                  </div>
+
+                  <div className="control-group switch-group">
+                    <label htmlFor="dropWhite">去除纯白色</label>
+                    <label className="switch">
+                      <input
+                        id="dropWhite"
+                        type="checkbox"
+                        checked={settings.dropWhite}
+                        onChange={(e) => setSettings({ ...settings, dropWhite: e.target.checked })}
+                      />
+                      <span className="slider round"></span>
+                    </label>
+                  </div>
+
+                  <div className="control-group switch-group">
+                    <label htmlFor="dropAlpha">去除半透明通道</label>
+                    <label className="switch">
+                      <input
+                        id="dropAlpha"
+                        type="checkbox"
+                        checked={settings.dropAlpha}
+                        onChange={(e) => setSettings({ ...settings, dropAlpha: e.target.checked })}
+                      />
+                      <span className="slider round"></span>
+                    </label>
+                  </div>
                 </div>
-                <div className="item">
-                  <label>
-                    去除 shadow 中的白色
-                    <input
-                      type="checkbox"
-                      checked={settings.dropWhite}
-                      onChange={(e) => setSettings({ ...settings, dropWhite: e.target.checked })}
-                    />
-                  </label>
-                </div>
-                <div className="item">
-                  <label>
-                    去除 shadow 中的 alpha 通道
-                    <input
-                      type="checkbox"
-                      checked={settings.dropAlpha}
-                      onChange={(e) => setSettings({ ...settings, dropAlpha: e.target.checked })}
-                    />
-                  </label>
-                </div>
-                <div className="item">
-                  <label>
-                    使用 text-shadow
-                    <input
-                      type="checkbox"
-                      checked={settings.textShadow}
-                      onChange={(e) => setSettings({ ...settings, textShadow: e.target.checked })}
-                    />
-                  </label>
-                </div>
-                {settings.textShadow && (
-                  <>
-                    <div className="item">
-                      <label>
-                        自定义 text-shadow 文字
+
+                <div className="form-section">
+                  <h3 className="section-title">高级特效</h3>
+                  
+                  <div className="control-group switch-group">
+                    <label htmlFor="textShadow">使用 Text-Shadow 渲染</label>
+                    <label className="switch">
+                      <input
+                        id="textShadow"
+                        type="checkbox"
+                        checked={settings.textShadow}
+                        onChange={(e) => setSettings({ ...settings, textShadow: e.target.checked })}
+                      />
+                      <span className="slider round"></span>
+                    </label>
+                  </div>
+
+                  {settings.textShadow && (
+                    <div className="sub-settings">
+                      <div className="control-group input-group">
+                        <label htmlFor="shadowText">自定义填充文字</label>
                         <input
+                          id="shadowText"
                           type="text"
                           maxLength={1}
                           value={settings.shadowText}
-                          className='shadow-text-input'
+                          className="modern-input"
                           onChange={(e) =>
                             setSettings({ ...settings, shadowText: e.target.value.trim().charAt(0) || "@" })
                           }
                         />
-                      </label>
-                    </div>
-                    <div className="item">
-                      <label>
-                        text-shadow 文字比例
+                      </div>
+                      
+                      <div className="control-group">
+                        <div className="control-header">
+                          <label htmlFor="shadowTextSize">文字比例</label>
+                          <span className="control-value">{settings.shadowTextSize}</span>
+                        </div>
                         <input
+                          id="shadowTextSize"
                           type="range"
                           min="1"
                           max="31"
+                          className="modern-range"
                           value={settings.shadowTextSize}
                           onChange={(e) => setSettings({ ...settings, shadowTextSize: Number(e.target.value) })}
                         />
-                      </label>
+                      </div>
                     </div>
-                  </>
-                )}
-                <div className="item">
-                  <label>
-                    开启动画模式
-                    <input
-                      type="checkbox"
-                      checked={settings.animeMode}
-                      onChange={(e) => setSettings({ ...settings, animeMode: e.target.checked })}
-                    />
-                  </label>
+                  )}
+
+                  <div className="control-group switch-group">
+                    <label htmlFor="animeMode">开启动画模式</label>
+                    <label className="switch">
+                      <input
+                        id="animeMode"
+                        type="checkbox"
+                        checked={settings.animeMode}
+                        onChange={(e) => setSettings({ ...settings, animeMode: e.target.checked })}
+                      />
+                      <span className="slider round"></span>
+                    </label>
+                  </div>
                 </div>
               </div>
-              <div className="btn-group" style={{ display: 'flex', gap: '10px', width: '100%', marginTop: '1rem' }}>
+              <div className="action-footer">
                 <button 
                   type="button" 
-                  style={{ flex: 1, whiteSpace: 'nowrap' }} 
+                  className="btn-secondary transition-transform active:scale-95"
                   onClick={() => fileInputRef.current?.click()}
                 >
                   更换图片
                 </button>
                 <button 
                   type="button" 
-                  style={{ flex: 1, whiteSpace: 'nowrap' }} 
+                  className="btn-primary transition-transform active:scale-95"
                   onClick={handleCopy}
                 >
-                  复制 shadow 样式
+                  {isCopied ? "已复制！" : "复制 CSS 代码"}
                 </button>
               </div>
             </div>
 
-            <div className="preview-area">
+            <div className="preview-area glass-panel">
               <div className="preview-tabs">
-                <button 
-                  className={`tab-btn ${activeTab === 'css' ? 'active' : ''}`}
-                  onClick={() => setActiveTab('css')}
-                >
-                  CSS 像素
-                </button>
-                <button 
-                  className={`tab-btn ${activeTab === 'canvas' ? 'active' : ''}`}
-                  onClick={() => setActiveTab('canvas')}
-                >
-                  Canvas 像素
-                </button>
-                <button 
-                  className={`tab-btn ${activeTab === 'original' ? 'active' : ''}`}
-                  onClick={() => setActiveTab('original')}
-                >
-                  原图
-                </button>
+                {(['css', 'canvas', 'original'] as const).map((tab) => (
+                  <button 
+                    key={tab}
+                    className={`modern-tab ${activeTab === tab ? 'active' : ''}`}
+                    onClick={() => setActiveTab(tab)}
+                  >
+                    {tab === 'css' && 'CSS 像素'}
+                    {tab === 'canvas' && 'Canvas 渲染'}
+                    {tab === 'original' && '原始对照'}
+                    {activeTab === tab && <div className="tab-indicator layout-id-tab" />}
+                  </button>
+                ))}
               </div>
 
-              <div className="preview-content">
-                <div className="card-shadow" style={{ display: activeTab === 'css' ? 'flex' : 'none' }}>
+              <div className="preview-content-wrapper">
+                <div className="preview-container view-anim" style={{ display: activeTab === 'css' ? 'flex' : 'none' }}>
                   <div className="size-wrap">
                     {output && (
                       <div className="pixel-wrap" style={{ width: output.width, height: output.height }}>
@@ -289,12 +338,12 @@ export default function Home() {
                   </div>
                 </div>
 
-                <div className="card-canvas" style={{ display: activeTab === 'canvas' ? 'flex' : 'none' }}>
+                <div className="preview-container view-anim" style={{ display: activeTab === 'canvas' ? 'flex' : 'none' }}>
                   <div className="size-wrap">
                     <div
                         style={{
-                          width: canvasWidth,
-                          height: canvasWidth * ratio,
+                          width: output ? output.width : canvasWidth,
+                          height: output ? output.height : canvasWidth * ratio,
                           position: 'relative',
                           maxWidth: '100%',
                         }}
@@ -312,18 +361,35 @@ export default function Home() {
                   </div>
                 </div>
 
-                <div className="card-image" style={{ display: activeTab === 'original' ? 'flex' : 'none' }}>
+                <div className="preview-container view-anim" style={{ display: activeTab === 'original' ? 'flex' : 'none' }}>
                   <div className="size-wrap image-wrap">
-                    <div 
-                      style={{ cursor: 'pointer' }}
+                    <button 
+                      className="image-button-wrapper"
                       onClick={() => fileInputRef.current?.click()}
+                      aria-label="更原始图片"
                     >
-                      <img src={fileUrl} alt="original" style={{ maxWidth: '100%', display: 'block' }} />
-                      <div className="tip">点击更换图片</div>
-                    </div>
+                      <img src={fileUrl} alt="original" style={{ width: '100%', height: 'auto', display: 'block' }} />
+                      <div className="tip">
+                        <span>换一张图片</span>
+                      </div>
+                    </button>
                   </div>
                 </div>
               </div>
+
+              {(activeTab === 'css' || activeTab === 'canvas') && (
+                <div style={{ display: 'flex', justifyContent: 'center', padding: '1em 0 1.5em' }}>
+                  <button 
+                    type="button" 
+                    className="btn-primary transition-transform active:scale-95"
+                    style={{ minWidth: '200px', background: 'linear-gradient(135deg, #646cff, #8a4fc5)' }}
+                    onClick={handleDownloadImage}
+                  >
+                    🚀 保存 {activeTab === 'css' ? 'CSS ' : 'Canvas '}像素图
+                  </button>
+                </div>
+              )}
+
               {/* Ensure hidden items needed for calculations always remain in DOM */}
               <img
                 ref={imageRef}
