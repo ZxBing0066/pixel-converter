@@ -51,9 +51,110 @@ button:focus-visible {
 }
 
 #app {
+    box-sizing: border-box;
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
+    align-items: flex-start;
+    max-width: 1400px;
     margin: 0 auto;
+    padding: 2em;
+    gap: 2em;
+}
+
+@media (max-width: 1024px) {
+    body {
+        overflow-x: hidden; /* Added based on instruction to adjust overflow on body */
+    }
+    #app {
+        height: auto;
+        flex-direction: column;
+        padding: 1em;
+    }
+}
+
+.preview-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    justify-content: flex-start;
+    position: sticky;
+    top: 2em;
+}
+
+@media (max-width: 1024px) {
+    .preview-area {
+        height: auto;
+        min-height: 400px;
+        position: static;
+        width: 100%;
+    }
+}
+
+.preview-tabs {
+    display: flex;
+    gap: 1em;
+    margin-bottom: 2em;
+    border-bottom: 2px solid #eaeaea;
+    padding-bottom: 0.5em;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.tab-btn {
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    padding: 0.5em 1em;
+    color: #666;
+    font-size: 1.1em;
+    position: relative;
+}
+
+.tab-btn:hover {
+    color: #213547;
+    background: rgba(0, 0, 0, 0.03);
+    border-radius: 4px;
+}
+
+.tab-btn.active {
+    color: #646cff;
+    font-weight: bold;
+}
+
+.tab-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: -0.65em;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: #646cff;
+    border-radius: 4px 4px 0 0;
+}
+
+.preview-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: auto;
+}
+
+@media (max-width: 1024px) {
+    .preview-content {
+        overflow: visible;
+    }
+}
+
+/* responsive canvas wraps */
+.preview-content .size-wrap {
+    max-width: 100%;
+}
+.preview-content .size-wrap > div {
+    max-width: 100%;
 }
 
 #image,
@@ -94,7 +195,9 @@ button:focus-visible {
     background-color: transparent;
     color: white;
     backdrop-filter: saturate(50%) blur(8px);
-    transition: background 1s 0.2s, opacity 0.5s;
+    transition:
+        background 1s 0.2s,
+        opacity 0.5s;
     opacity: 0;
 }
 
@@ -105,15 +208,36 @@ button:focus-visible {
 }
 
 [class|='card'] {
-    width: 50vw;
-    margin-bottom: 1em;
     display: flex;
     align-items: center;
     flex-direction: column;
     position: relative;
-    width: 50%;
+    width: 100%;
     padding: 1em;
     box-sizing: border-box;
+}
+
+.card-info {
+    width: 320px;
+    position: sticky;
+    top: 2em;
+    flex-shrink: 0;
+    background: #fff;
+    padding: 1.2em;
+    max-height: calc(100vh - 4em);
+    overflow-y: auto;
+    border: 1px solid #eaeaea;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+@media (max-width: 1024px) {
+    .card-info {
+        width: 100%;
+        position: static;
+        min-height: auto;
+        max-height: none;
+    }
 }
 
 @keyframes bg-move {
@@ -139,7 +263,9 @@ button:focus-visible {
     background-clip: text;
     -webkit-background-clip: text;
     color: transparent;
-    animation: bg-move 2s infinite ease, bg-gradient 4s infinite linear;
+    animation:
+        bg-move 2s infinite ease,
+        bg-gradient 4s infinite linear;
     animation-direction: alternate, alternate;
     font-size: 2rem;
     margin: 0;
@@ -231,4 +357,8 @@ button:focus-visible {
 }
 #main {
     flex: 1;
+}
+
+.shadow-text-input {
+    width: 2em;
 }
