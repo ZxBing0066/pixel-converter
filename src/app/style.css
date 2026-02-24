@@ -640,17 +640,74 @@ input:checked + .slider:before {
 
 #footer .github img {
     width: 100%;
+    height: 100%;
+    transition: transform 0.3s ease;
+    display: block;
+}
+
+#footer .github:hover img {
+    transform: scale(1.1);
+}
+
+#footer .github:focus-visible,
+#footer .copyright a:focus-visible,
+.footer-link:focus-visible {
+    outline: 2px solid #646cff;
+    outline-offset: 4px;
+    border-radius: 4px;
+}
+
+.footer-links {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    font-size: 0.85rem;
+}
+
+.footer-link {
+    color: #666;
+    text-decoration: none;
+    font-weight: 500;
+    position: relative;
+    transition: color 0.3s ease;
+    touch-action: manipulation;
+}
+
+.footer-link:hover {
+    color: #111;
+}
+
+.footer-link::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 2px;
+    bottom: -4px;
+    left: 0;
+    background: linear-gradient(90deg, #646cff, #8a4fc5);
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.3s ease;
+}
+
+.footer-link:hover::after {
+    transform: scaleX(1);
+    transform-origin: left;
 }
 
 @media (max-width: 600px) {
     #footer {
-        padding: 0.8em 1em;
+        padding: 1.2em 1em;
         flex-direction: column;
         align-items: center;
-        gap: 0.5em;
+        gap: 1.2em;
     }
     #footer .copyright {
         font-size: 0.85rem;
+        color: #888;
+    }
+    .footer-links {
+        gap: 2rem;
     }
 }
 
